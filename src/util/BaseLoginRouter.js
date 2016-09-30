@@ -136,8 +136,27 @@ function (Okta, Backbone, BrowserFeatures, xdomain, RefreshAuthStateController, 
     },
 
     execute: function (cb, args) {
+
+      // Array of parameters passed in to accommodate the widget not picking
+      // up hash routing when loaded into HANA. Will insert into pre-existing
+      // routing flows in order to minimize impact. This will allow direct insertion
+      // into the widget flow. 
+      var argsArray = (args.length > 1 && args[1]) ? args[1].split('&') : [];
+      var argsDict = {};
+      for (var i = 0; i < argsArray.length; i++) {
+        var key = argsArray[i].split('=')[0];
+        var value = argsArray[i].split('=')[1];
+        argsDict[key] = value;
+      }
+
       // Recovery flow with a token passed through widget settings
       var recoveryToken = this.settings.get('recoveryToken');
+      recoveryToken = (recoveryToken === undefined  &&
+                      'action' in argsDict &&
+                      argsDict.action === 'passwordResetRecovery' && 
+                      'recoveryToken' in argsDict) ?
+                      argsDict.recoveryToken :
+                      undefined;
       if (recoveryToken) {
         this.settings.unset('recoveryToken');
         this.navigate(RouterUtil.createRecoveryUrl(recoveryToken), { trigger: true });
