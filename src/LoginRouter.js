@@ -46,6 +46,7 @@ define([
   'AccountUnlockedController',
   'UnlockEmailSentController',
   'RefreshAuthStateController',
+  'UserCreationController',
   'views/shared/SecurityBeacon',
   'views/shared/FactorBeacon'
 ],
@@ -82,6 +83,7 @@ function (BaseLoginRouter,
           UnlockAccountController,
           AccountUnlockedController,
           UnlockEmailSentController,
+          UserCreationController,
           RefreshAuthStateController,
           SecurityBeacon,
           FactorBeacon) {
@@ -116,8 +118,9 @@ function (BaseLoginRouter,
       'signin/enroll-activate/:provider/:factorType/manual': 'manualSetupTotpFactor',
       'signin/password-expired': 'passwordExpired',
       'signin/forgot-password': 'forgotPassword',
+      'signin/create-user': 'userCreation',
       'signin/recovery-challenge': 'recoveryChallenge',
-      'signin/recovery-emailed': 'recoveryEmailSent',
+      //'signin/recovery-emailed': 'recoveryEmailSent',
       'signin/recovery-question': 'recoveryQuestion',
       'signin/password-reset': 'passwordReset',
       'signin/reset-password/:token': 'recoveryLoading',
@@ -133,7 +136,7 @@ function (BaseLoginRouter,
     // Route handlers that do not require a stateToken. If the page is refreshed,
     // these functions will not require a status call to refresh the stateToken.
     stateLessRouteHandlers: [
-      'primaryAuth', 'forgotPassword', 'recoveryLoading', 'unlockAccount', 'refreshAuthState'
+      'primaryAuth', 'forgotPassword', 'userCreation','recoveryLoading', 'unlockAccount', 'refreshAuthState'
     ],
 
     primaryAuth: function () {
@@ -326,6 +329,9 @@ function (BaseLoginRouter,
 
     forgotPassword: function () {
       this.render(ForgotPasswordController);
+    },
+    userCreation: function () {
+      this.render(UserCreationController);
     },
 
     recoveryChallenge: function () {
