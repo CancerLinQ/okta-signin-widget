@@ -15,7 +15,11 @@ GEM
     compass-import-once (1.0.5)
       sass (>= 3.2, < 3.5)
     ffi (1.9.8)
+<<<<<<< HEAD
     ffi (1.9.8-x64-mingw32)
+=======
+    ffi (1.9.8-x86-mingw32)
+>>>>>>> 2509c9f6bf051b5071c6c597ed28fee265f99ee2
     multi_json (1.11.0)
     rainbow (2.0.0)
     rb-fsevent (0.9.4)
@@ -29,7 +33,11 @@ GEM
 
 PLATFORMS
   ruby
+<<<<<<< HEAD
   x64-mingw32
+=======
+  x86-mingw32
+>>>>>>> 2509c9f6bf051b5071c6c597ed28fee265f99ee2
 
 DEPENDENCIES
   compass (= 1.0.3)
