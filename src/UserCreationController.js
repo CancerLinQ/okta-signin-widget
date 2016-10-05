@@ -27,7 +27,12 @@ function (Okta, FormController, FormType, ValidationUtil, FooterSignout, TextBox
     Model: {
       props: {
         newPassword: ['string', true],
-        confirmPassword: ['string', true]
+        confirmPassword: ['string', true],
+        question: 'string',
+        answer: ['string', true]
+      },
+      local: {
+        securityQuestions: 'object'
       },
       validate: function () {
         return ValidationUtil.validatePasswordMatch(this);
@@ -136,6 +141,7 @@ function (Okta, FormController, FormType, ValidationUtil, FooterSignout, TextBox
           processCreds({
             username: this.options.appState.get('userEmail'),
             password: this.model.get('newPassword')
+            
           });
         }
         this.model.save();
