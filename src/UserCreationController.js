@@ -13,10 +13,12 @@
 define([
   'okta',
   'util/FormController',
-  'views/enroll-factors/Footer',
+  'util/FormType',
+  'util/ValidationUtil',
+  'views/shared/FooterSignout',
   'views/shared/TextBox'
 ],
-function (Okta, FormController, Footer, TextBox) {
+function (Okta, FormController, FormType, ValidationUtil, FooterSignout, TextBox) {
 
   var _ = Okta._;
 
@@ -24,37 +26,88 @@ function (Okta, FormController, Footer, TextBox) {
     className: 'create-user',
     Model: {
       props: {
+        newPassword: ['string', true],
+        confirmPassword: ['string', true],
         question: 'string',
         answer: ['string', true]
       },
       local: {
         securityQuestions: 'object'
       },
+      validate: function () {
+        return ValidationUtil.validatePasswordMatch(this);
+      },
       save: function () {
+        var self = this;
         return this.doTransaction(function(transaction) {
-          var factor = _.findWhere(transaction.factors, {
-            factorType: 'question',
-            provider: 'OKTA'
-          });
-          return factor.enroll({
-            profile: {
-              question: this.get('question'),
-              answer: this.get('answer')
-            }
+          return transaction
+          .resetPassword({
+            newPassword: self.get('newPassword')
           });
         });
       }
     },
-
     Form: {
-      autoSave: true,
-      title: _.partial(Okta.loc, 'enroll.securityQuestion.setup', 'login'),
-      inputs: function () {
+      save: _.partial(Okta.loc, 'password.reset', 'login'),
+      title: _.partial(Okta.loc, 'password.reset.title', 'login'),
+      subtitle: function () {
+        var policy = this.options.appState.get('policy');
+        if (!policy || !policy.complexity) {
+          return;
+        }
+
+        var fields = {
+          minLength: {i18n: 'password.complexity.length', args: true},
+          minLowerCase: {i18n: 'password.complexity.lowercase'},
+          minUpperCase: {i18n: 'password.complexity.uppercase'},
+          minNumber: {i18n: 'password.complexity.number'},
+          minSymbol: {i18n: 'password.complexity.symbol'},
+          excludeUsername: {i18n: 'password.complexity.no_username'}
+        };
+
+        var requirements = _.map(policy.complexity, function (complexityValue, complexityType) {
+          var params = fields[complexityType];
+
+          return params.args ?
+            Okta.loc(params.i18n, 'login', [complexityValue]) : Okta.loc(params.i18n, 'login');
+        });
+
+        if (requirements.length) {
+          requirements = _.reduce(requirements, function (result, requirement) {
+            return result ?
+              (result + Okta.loc('password.complexity.list.element', 'login', [requirement])) :
+              requirement;
+          });
+
+          return Okta.loc('password.complexity.description', 'login', [requirements]);
+        }
+      },
+      formChildren: function () {
         return [
-          {
+          FormType.Input({
+            placeholder: Okta.loc('password.newPassword.placeholder', 'login'),
+            name: 'newPassword',
+            input: TextBox,
+            type: 'password',
+            params: {
+              innerTooltip: Okta.loc('password.newPassword.tooltip', 'login'),
+              icon: 'credentials-16'
+            }
+          }),
+          FormType.Input({
+            placeholder: Okta.loc('password.confirmPassword.placeholder', 'login'),
+            name: 'confirmPassword',
+            input: TextBox,
+            type: 'password',
+            params: {
+              innerTooltip: Okta.loc('password.confirmPassword.tooltip', 'login'),
+              icon: 'credentials-16'
+            }
+          }),
+          FormType.Input({
             label: false,
-            label-top': true,
-            name: 'question',
+            'label-top': true,
+            //name: 'question',
             type: 'select',
             wide: true,
             options: function () {
@@ -63,40 +116,35 @@ function (Okta, FormController, Footer, TextBox) {
             params: {
               searchThreshold: 25
             }
-          },
-          {
+          }),
+          FormType.Input({
             label: false,
             'label-top': true,
             placeholder: Okta.loc('mfa.challenge.answer.placeholder', 'login'),
             className: 'o-form-fieldset o-form-label-top auth-passcode',
-            name: 'answer',
+            //name: 'answer',
             input: TextBox,
             type: 'text',
             params: {
               innerTooltip: Okta.loc('mfa.challenge.answer.tooltip', 'login')
             }
-          }
+          })
         ];
       }
     },
+    Footer: FooterSignout,
 
-    Footer: Footer,
-
-    fetchInitialData: function () {
-      var self = this;
-      return this.model.manageTransaction(function(transaction) {
-        var factor = _.findWhere(transaction.factors, {
-          factorType: 'question',
-          provider: 'OKTA'
-        });
-        return factor.questions();
-      })
-      .then(function(questionsRes) {
-        var questions = {};
-        _.each(questionsRes, function (question) {
-          questions[question.question] = question.questionText;
-        });
-        self.model.set('securityQuestions', questions);
+    initialize: function () {
+      this.listenTo(this.form, 'save', function () {
+        var processCreds = this.settings.get('processCreds');
+        if (_.isFunction(processCreds)) {
+          processCreds({
+            username: this.options.appState.get('userEmail'),
+            password: this.model.get('newPassword')
+            
+          });
+        }
+        this.model.save();
       });
     }
 

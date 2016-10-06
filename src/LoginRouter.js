@@ -45,8 +45,8 @@ define([
   'UnlockAccountController',
   'AccountUnlockedController',
   'UnlockEmailSentController',
-  'RefreshAuthStateController',
   'UserCreationController',
+  'RefreshAuthStateController',
   'views/shared/SecurityBeacon',
   'views/shared/FactorBeacon'
 ],
