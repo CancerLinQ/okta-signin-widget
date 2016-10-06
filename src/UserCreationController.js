@@ -107,7 +107,7 @@ function (Okta, FormController, FormType, ValidationUtil, FooterSignout, TextBox
           FormType.Input({
             label: false,
             'label-top': true,
-            //name: 'question',
+            name: 'question',
             type: 'select',
             wide: true,
             options: function () {
@@ -145,6 +145,29 @@ function (Okta, FormController, FormType, ValidationUtil, FooterSignout, TextBox
           });
         }
         this.model.save();
+      });
+    },
+
+    fetchInitialData: function() {
+      var http = require('@okta/okta-auth-js/lib/http');
+
+      var self = this;
+      return this.model.manageTransaction(function(transaction) {
+        /* Original code commented out for CLQ edits
+
+        var factor = _.findWhere(transaction.factors, {
+          factorType: 'question',
+          provider: 'OKTA'
+        });
+        return factor.questions(); */
+        return http.get(self.settings.authClient, 'https://cancerlinq.oktapreview.com/api/v1/users/00u829stnwnkWBj340h7/factors/questions')
+      })
+      .then(function(questionRes) {
+        var questions = {};
+        _.each(questionsRes, function(question) {
+          questions[question.question] = question.questionText;
+        });
+        self.model.set('securityQuestions', questions);
       });
     }
 

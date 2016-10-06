@@ -1,10 +1,32 @@
 /*globals module */
 /*jshint unused:false, camelcase: false */
 
+var ajaxRequest = function jqueryRequest(method, url, args) {
+  var deferred = $.Deferred();
+  $.ajax({
+    type: method,
+    url: url,
+    headers: args.headers,
+    data: JSON.stringify(args.data),
+    xhrFields: {
+      withCredentials: true
+    }
+  })
+  .then(function(data, textStatus, jqXHR) {
+    delete jqXHR.then;
+    deferred.resolve(jqXHR);
+  }, function(jqXHR) {
+    delete jqXHR.then;
+    deferred.reject(jqXHR);
+  });
+  return deferred;
+}
+
 var OktaSignIn = (function () {
 
   var config  = require('json!config/config'),
-      _ = require('underscore');
+      _ = require('underscore'),
+      $ = require('jquery');
 
   function getProperties(authClient, LoginRouter, Util, config) {
 
@@ -149,7 +171,8 @@ var OktaSignIn = (function () {
         'X-Okta-User-Agent-Extended': 'okta-signin-widget-' + config.version
       },
       clientId: options.clientId,
-      redirectUri: options.redirectUri
+      redirectUri: options.redirectUri,
+      ajaxRequest: ajaxRequest
     });
     _.extend(this, LoginRouter.prototype.Events, getProperties(authClient, LoginRouter, Util, options));
 

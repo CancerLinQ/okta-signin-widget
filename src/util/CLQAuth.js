@@ -16,9 +16,14 @@ var CLQAuth = (function() {
     return tx.postToTransaction(this, '/asco/dev/commons/security/login/xs/api/unlockAccountRequest', opts);
   };
 
+  OktaAuth.prototype.signIn = function(opts) {
+    return tx.postToTransaction(this, 'temp', opts);
+  };
+
   OktaAuth.prototype.signUp = function(opts) {
     return tx.postToTransaction(this, 'temp', opts);
-  }
+  };
+
 
   return OktaAuth;
 
