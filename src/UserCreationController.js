@@ -160,13 +160,28 @@ function (Okta, FormController, FormType, ValidationUtil, FooterSignout, TextBox
           provider: 'OKTA'
         });
         return factor.questions(); */
-        return http.get(self.settings.authClient, 'https://cancerlinq.oktapreview.com/api/v1/users/00u829stnwnkWBj340h7/factors/questions')
+        var factor = {
+          "enrollment": "OPTIONAL",
+          "status": "NOT_SETUP",
+          "factorType": "question",
+          "provider": "OKTA",
+          "vendorName": "OKTA"
+        };
+        factor.questions = function() {
+          return http.get(self.settings.getAuthClient(), 'https://cancerlinq.oktapreview.com/api/v1/users/00u829stnwnkWBj340h7/factors/questions')
+        }
+        return factor.questions();
       })
       .then(function(questionRes) {
         var questions = {};
-        _.each(questionsRes, function(question) {
-          questions[question.question] = question.questionText;
-        });
+        for (var i = 0; i < questionRes.length; i++) {
+          questions[questionRes[i].question] = questionRes[i].questionText;
+        }
+
+        // Original code below was causing errors for unknown reason
+        // _.each(questionsRes, function(question) {
+          // questions[question.question] = question.questionText;
+        // });
         self.model.set('securityQuestions', questions);
       });
     }

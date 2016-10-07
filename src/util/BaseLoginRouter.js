@@ -151,6 +151,8 @@ function (Okta, Backbone, BrowserFeatures, xdomain, RefreshAuthStateController, 
 
       // Recovery flow with a token passed through widget settings
       var recoveryToken = this.settings.get('recoveryToken');
+
+      // Custom CLQ case to jump into a password reset flow
       recoveryToken = (recoveryToken === undefined  &&
                       'action' in argsDict &&
                       argsDict.action === 'passwordResetRecovery' && 
@@ -168,6 +170,18 @@ function (Okta, Backbone, BrowserFeatures, xdomain, RefreshAuthStateController, 
       if (stateToken) {
         this.settings.unset('stateToken');
         this.navigate(RouterUtil.createRefreshUrl(stateToken), { trigger: true });
+        return;
+      }
+
+      // Custom CLQ case to jump into user creation flow
+      var action = ('action' in argsDict && argsDict.action === 'createUser') ? 
+                    'createUser' : undefined;
+      recoveryToken = (recoveryToken === undefined &&
+                        'recoveryToken' in argsDict) ?
+                      argsDict.recoveryToken : undefined;
+      if (action === 'createUser' && recoveryToken) {
+        cb = this.userCreation;
+        cb.apply(this, [null]);
         return;
       }
 

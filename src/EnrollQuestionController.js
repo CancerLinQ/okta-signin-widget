@@ -84,7 +84,7 @@ function (Okta, FormController, Footer, TextBox) {
 
     fetchInitialData: function () {
       var self = this;
-      console.log(JSON.stringify(this));
+
       return this.model.manageTransaction(function(transaction) {
         var factor = _.findWhere(transaction.factors, {
           factorType: 'question',

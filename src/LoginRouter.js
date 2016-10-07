@@ -136,7 +136,7 @@ function (BaseLoginRouter,
     // Route handlers that do not require a stateToken. If the page is refreshed,
     // these functions will not require a status call to refresh the stateToken.
     stateLessRouteHandlers: [
-      'primaryAuth', 'forgotPassword', 'userCreation','recoveryLoading', 'unlockAccount', 'refreshAuthState'
+      'primaryAuth', 'forgotPassword','recoveryLoading', 'unlockAccount', 'refreshAuthState'
     ],
 
     primaryAuth: function () {

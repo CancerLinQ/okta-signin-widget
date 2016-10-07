@@ -1,26 +1,7 @@
 /*globals module */
 /*jshint unused:false, camelcase: false */
 
-var ajaxRequest = function jqueryRequest(method, url, args) {
-  var deferred = $.Deferred();
-  $.ajax({
-    type: method,
-    url: url,
-    headers: args.headers,
-    data: JSON.stringify(args.data),
-    xhrFields: {
-      withCredentials: true
-    }
-  })
-  .then(function(data, textStatus, jqXHR) {
-    delete jqXHR.then;
-    deferred.resolve(jqXHR);
-  }, function(jqXHR) {
-    delete jqXHR.then;
-    deferred.reject(jqXHR);
-  });
-  return deferred;
-}
+
 
 var OktaSignIn = (function () {
 
@@ -159,6 +140,27 @@ var OktaSignIn = (function () {
     require('vendor/lib/underscore-wrapper');
     require('vendor/lib/handlebars-wrapper');
     require('vendor/lib/jquery-wrapper');
+
+    var ajaxRequest = function jqueryRequest(method, url, args) {
+      var deferred = $.Deferred();
+      $.ajax({
+        type: method,
+        url: url,
+        headers: args.headers,
+        data: JSON.stringify(args.data),
+        xhrFields: {
+          withCredentials: true
+        }
+      })
+      .then(function(data, textStatus, jqXHR) {
+        delete jqXHR.then;
+        deferred.resolve(jqXHR);
+      }, function(jqXHR) {
+        delete jqXHR.then;
+        deferred.reject(jqXHR);
+      });
+      return deferred;
+    }
 
     OktaAuth = require('util/CLQAuth');
     Util = require('util/Util');
