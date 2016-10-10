@@ -508,6 +508,11 @@
     background-position: -12px 2px;
 }
 
+/* CLQ custom edit for fixing dropdown issue */
+.chzn-container.chzn-container-single.chzn-container-single-nosearch.chzn-with-drop.chzn-container-active {
+  top: 273.703px !important;
+}
+
 /* @end */
 
 /* @group Retina compatibility */
