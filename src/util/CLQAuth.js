@@ -17,11 +17,11 @@ var CLQAuth = (function() {
   };
 
   OktaAuth.prototype.signIn = function(opts) {
-    return tx.postToTransaction(this, 'temp', opts);
+    return tx.postToTransaction(this, '/asco/dev/commons/security/login/xs/api/signIn', opts);
   };
 
   OktaAuth.prototype.signUp = function(opts) {
-    return tx.postToTransaction(this, 'temp', opts);
+    return tx.postToTransaction(this, '/asco/dev/commons/security/login/xs/api/signUp', opts);
   };
 
 

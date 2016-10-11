@@ -28,7 +28,7 @@ function (Okta, FormController, FormType, ValidationUtil, FooterSignout, TextBox
       props: {
         newPassword: ['string', true],
         confirmPassword: ['string', true],
-        question: 'string',
+        question: ['string', true],
         answer: ['string', true]
       },
       local: {
@@ -38,18 +38,36 @@ function (Okta, FormController, FormType, ValidationUtil, FooterSignout, TextBox
         return ValidationUtil.validatePasswordMatch(this);
       },
       save: function () {
-        console.log("no this function is called");
         var self = this;
-        return this.doTransaction(function(transaction) {
-          return transaction
-          .resetPassword({
-            newPassword: self.get('newPassword')
-          });
+
+        // http://stackoverflow.com/questions/979975/how-to-get-the-value-from-the-get-parameters
+        var gup = function( name, url ) {
+          if (!url) url = location.href;
+          name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+          var regexS = "[\\?&]"+name+"=([^&#]*)";
+          var regex = new RegExp( regexS );
+          var results = regex.exec( url );
+          return results == null ? null : results[1];
+        }
+
+        return this.startTransaction (function(authClient) {
+          return authClient.signUp({
+            password: self.get('newPassword'),
+            question: self.get('question'),
+            answer: self.get('answer'),
+            token: gup('recoveryToken', window.location.search)
+          })
+          .then( function(transaction) {
+            self.options.appState.trigger('navigate', '');
+          })
+          .fail(function() {
+            console.log("submit form failed");
+          })
         });
       }
     },
     Form: {
-      save: _.partial(Okta.loc, 'password.reset', 'login'),
+      autosave: true,
       title: _.partial(Okta.loc, 'password.reset.title', 'login'),
       subtitle: function () {
         var policy = this.options.appState.get('policy');
@@ -67,11 +85,11 @@ function (Okta, FormController, FormType, ValidationUtil, FooterSignout, TextBox
         };
 
         var requirements = _.map(policy.complexity, function (complexityValue, complexityType) {
-          var params = fields[complexityType];
+        var params = fields[complexityType];
 
-          return params.args ?
-            Okta.loc(params.i18n, 'login', [complexityValue]) : Okta.loc(params.i18n, 'login');
-        });
+        return params.args ?
+          Okta.loc(params.i18n, 'login', [complexityValue]) : Okta.loc(params.i18n, 'login');
+        });s
 
         if (requirements.length) {
           requirements = _.reduce(requirements, function (result, requirement) {
@@ -132,7 +150,7 @@ function (Okta, FormController, FormType, ValidationUtil, FooterSignout, TextBox
             'label-top': true,
             placeholder: Okta.loc('mfa.challenge.answer.placeholder', 'login'),
             className: 'o-form-fieldset o-form-label-top auth-passcode',
-            //name: 'answer',
+            name: 'answer',
             input: TextBox,
             type: 'text',
             params: {
@@ -146,15 +164,14 @@ function (Okta, FormController, FormType, ValidationUtil, FooterSignout, TextBox
 
     initialize: function () {
       this.listenTo(this.form, 'save', function () {
-        console.log("this is called");
-        var processCreds = this.settings.get('processCreds');
-        if (_.isFunction(processCreds)) {
-          processCreds({
-            username: this.options.appState.get('userEmail'),
-            password: this.model.get('newPassword')
+        // var processCreds = this.settings.get('processCreds');
+        // if (_.isFunction(processCreds)) {
+        //   processCreds({
+        //     username: this.options.appState.get('userEmail'),
+        //     password: this.model.get('newPassword')
             
-          });
-        }
+        //   });
+        // }
         this.model.save();
       });
     },
@@ -179,68 +196,7 @@ function (Okta, FormController, FormType, ValidationUtil, FooterSignout, TextBox
           "vendorName": "OKTA"
         };
         factor.questions = function() {
-          // return http.get(self.settings.getAuthClient(), 'https://cancerlinq.oktapreview.com/api/v1/users/00u829stnwnkWBj340h7/factors/questions')
-          return [{
-    "question": "disliked_food",
-    "questionText": "What is the food you least liked as a child?"
-  }, {
-    "question": "name_of_first_plush_toy",
-    "questionText": "What is the name of your first stuffed animal?"
-  }, {
-    "question": "first_award",
-    "questionText": "What did you earn your first medal or award for?"
-  }, {
-    "question": "favorite_security_question",
-    "questionText": "What is your favorite security question?"
-  }, {
-    "question": "favorite_toy",
-    "questionText": "What is the toy\/stuffed animal you liked the most as a kid?"
-  }, {
-    "question": "first_computer_game",
-    "questionText": "What was the first computer game you played?"
-  }, {
-    "question": "favorite_movie_quote",
-    "questionText": "What is your favorite movie quote?"
-  }, {
-    "question": "first_sports_team_mascot",
-    "questionText": "What was the mascot of the first sports team you played on?"
-  }, {
-    "question": "first_music_purchase",
-    "questionText": "What music album or song did you first purchase?"
-  }, {
-    "question": "favorite_art_piece",
-    "questionText": "What is your favorite piece of art?"
-  }, {
-    "question": "grandmother_favorite_desert",
-    "questionText": "What was your grandmother's favorite dessert?"
-  }, {
-    "question": "first_thing_cooked",
-    "questionText": "What was the first thing you learned to cook?"
-  }, {
-    "question": "childhood_dream_job",
-    "questionText": "What was your dream job as a child?"
-  }, {
-    "question": "first_kiss_location",
-    "questionText": "Where did you have your first kiss?"
-  }, {
-    "question": "place_where_significant_other_was_met",
-    "questionText": "Where did you meet your spouse\/significant other?"
-  }, {
-    "question": "favorite_vacation_location",
-    "questionText": "Where did you go for your favorite vacation?"
-  }, {
-    "question": "new_years_two_thousand",
-    "questionText": "Where were you on New Year's Eve in the year 2000?"
-  }, {
-    "question": "favorite_speaker_actor",
-    "questionText": "Who is your favorite speaker\/orator?"
-  }, {
-    "question": "favorite_book_movie_character",
-    "questionText": "Who is your favorite book\/movie character?"
-  }, {
-    "question": "favorite_sports_player",
-    "questionText": "Who is your favorite sports player?"
-  }]
+          return http.get(self.settings.getAuthClient(), 'https://cancerlinq.oktapreview.com/api/v1/users/00u829stnwnkWBj340h7/factors/questions')
         }
         return factor.questions();
       })
