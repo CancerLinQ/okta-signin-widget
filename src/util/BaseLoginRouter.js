@@ -154,9 +154,10 @@ function (Okta, Backbone, BrowserFeatures, xdomain, RefreshAuthStateController, 
 
       // Custom CLQ case to jump into a password reset flow
       recoveryToken = (recoveryToken === undefined  &&
+                      'recoveryToken' in argsDict &&
                       'action' in argsDict &&
-                      argsDict.action === 'passwordResetRecovery' && 
-                      'recoveryToken' in argsDict) ?
+                        (argsDict.action === 'passwordResetRecovery' ||
+                         argsDict.action === 'unlockAccountRecovery')) ?
                       argsDict.recoveryToken :
                       undefined;
       if (recoveryToken) {

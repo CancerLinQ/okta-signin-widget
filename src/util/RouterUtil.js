@@ -32,7 +32,7 @@ function (Okta, Util, OAuth2Util, Enums, BrowserFeatures, Errors, ErrorCodes) {
   var recoveryUrlTpl = Okta.tpl('signin/recovery/{{recoveryToken}}');
   var refreshUrlTpl = Okta.tpl('signin/refresh-auth-state{{#if token}}/{{token}}{{/if}}');
   var sessionCookieRedirectTpl = Okta.tpl(
-    '{{baseUrl}}/login/sessionCookieRedirect?checkAccountSetupComplete=true' +
+    '{{oktaUrl}}/login/sessionCookieRedirect?checkAccountSetupComplete=true' +
     '&token={{{token}}}&redirectUrl={{{redirectUrl}}}'
   );
 
@@ -118,7 +118,7 @@ function (Okta, Util, OAuth2Util, Enums, BrowserFeatures, Errors, ErrorCodes) {
           token: res.sessionToken,
           setCookieAndRedirect: function (redirectUrl) {
             Util.redirect(sessionCookieRedirectTpl({
-              baseUrl: router.settings.get('baseUrl'),
+              oktaUrl: router.settings.get('oktaUrl'),
               token: encodeURIComponent(res.sessionToken),
               redirectUrl: encodeURIComponent(redirectUrl)
             }));

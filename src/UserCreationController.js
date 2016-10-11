@@ -58,7 +58,10 @@ function (Okta, FormController, FormType, ValidationUtil, FooterSignout, TextBox
             token: gup('recoveryToken', window.location.search)
           })
           .then( function(transaction) {
-            self.options.appState.trigger('navigate', '');
+            // Need to display errors if they are passed in.
+            if (!('errorCode' in transaction)) {
+              self.options.appState.trigger('navigate', '');
+            }
           })
           .fail(function() {
             console.log("submit form failed");
@@ -196,7 +199,8 @@ function (Okta, FormController, FormType, ValidationUtil, FooterSignout, TextBox
           "vendorName": "OKTA"
         };
         factor.questions = function() {
-          return http.get(self.settings.getAuthClient(), 'https://cancerlinq.oktapreview.com/api/v1/users/00u829stnwnkWBj340h7/factors/questions')
+          return http.get(self.settings.getAuthClient(), 
+            self.settings.attributes.oktaUrl + '/api/v1/users/00u829stnwnkWBj340h7/factors/questions')
         }
         return factor.questions();
       })
