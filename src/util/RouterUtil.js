@@ -81,7 +81,13 @@ function (Okta, Util, OAuth2Util, Enums, BrowserFeatures, Errors, ErrorCodes) {
 
     // Token has expired - no longer valid. Navigate back to primary auth.
     if (err && err.errorCode === ErrorCodes.INVALID_TOKEN_EXCEPTION) {
-      router.appState.set('flashError', Okta.loc('error.expired.session'));
+
+      // CLQ: Use custom error message (identified by presence of CLQ:)
+      // This is implemented to prevent inadvertently passing the errorMessage when it shouldn't be used
+      var msg = err.errorSummary.indexOf('CLQ:') !== -1 ? 
+                err.errorSummary.substring(4).trim() : 
+                Okta.loc('error.expired.session');
+      router.appState.set('flashError', msg);
       router.controller.state.set('navigateDir', Enums.DIRECTION_BACK);
       router.navigate('', { trigger: true });
       return;

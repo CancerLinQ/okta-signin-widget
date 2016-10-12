@@ -46,6 +46,7 @@ define([
   'AccountUnlockedController',
   'UnlockEmailSentController',
   'UserCreationController',
+  'UserCreationSuccessController',
   'RefreshAuthStateController',
   'views/shared/SecurityBeacon',
   'views/shared/FactorBeacon'
@@ -84,6 +85,7 @@ function (BaseLoginRouter,
           AccountUnlockedController,
           UnlockEmailSentController,
           UserCreationController,
+          UserCreationSuccessController,
           RefreshAuthStateController,
           SecurityBeacon,
           FactorBeacon) {
@@ -119,6 +121,7 @@ function (BaseLoginRouter,
       'signin/password-expired': 'passwordExpired',
       'signin/forgot-password': 'forgotPassword',
       'signin/create-user': 'userCreation',
+      'signin/created-user': 'userCreated',
       'signin/recovery-challenge': 'recoveryChallenge',
       'signin/recovery-emailed': 'recoveryEmailSent',
       'signin/recovery-question': 'recoveryQuestion',
@@ -330,8 +333,13 @@ function (BaseLoginRouter,
     forgotPassword: function () {
       this.render(ForgotPasswordController);
     },
+
     userCreation: function () {
       this.render(UserCreationController);
+    },
+
+    userCreated: function () {
+      this.render(UserCreationSuccessController);
     },
 
     recoveryChallenge: function () {
