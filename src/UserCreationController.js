@@ -70,7 +70,7 @@ function (Okta, FormController, FormType, ValidationUtil, FooterSignout, TextBox
     },
     Form: {
       autosave: true,
-      title: _.partial(Okta.loc, 'password.reset.title', 'login'),
+      title: _.partial(Okta.loc, 'usercreation.title', 'login'),
       subtitle: function () {
         var policy = this.options.appState.get('policy');
         if (!policy || !policy.complexity) {
