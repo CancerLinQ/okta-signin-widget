@@ -31,7 +31,7 @@ function (Okta, Enums, FormController, FormType) {
     },
 
     Form: {
-      title: _.partial(Okta.loc, 'password.forgot.emailSent.title', 'login'),
+      title: _.partial(Okta.loc, 'usercreation.title', 'login'),
       subtitle: function () {
         var username = this.options.appState.get('username');
         return Okta.loc('password.forgot.emailSent.desc', 'login', [username]);

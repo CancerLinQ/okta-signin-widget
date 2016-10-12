@@ -192,12 +192,17 @@ define([
     },
 
     loadLanguage: function (language, overrides, assets) {
+      var CLQText = require('util/CLQText');
       var parsedOverrides = parseOverrides(overrides);
       return getBundles(language, assets)
       .then(_.bind(function (bundles) {
         // Always extend from the built in defaults in the event that some
         // properties are not translated
         this.login = _.extend({}, login, bundles.login);
+
+        // CLQ extend the built in defaults and included languages with
+        // custom phrasing for CLQ version of widget
+        this.login = _.extend({}, login, CLQText);
         this.country = _.extend({}, country, bundles.country);
         if (parsedOverrides[language]) {
           _.extend(this.login, parsedOverrides[language]['login']);
