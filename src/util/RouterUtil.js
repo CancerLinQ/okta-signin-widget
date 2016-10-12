@@ -191,6 +191,9 @@ function (Okta, Util, OAuth2Util, Enums, BrowserFeatures, Errors, ErrorCodes) {
         });
       }
       return;
+    case 'USER_CREATED':
+      router.navigate('signin/created-user', { trigger: true });
+      return;
     default:
       throw new Error('Unknown status: ' + res.status);
     }

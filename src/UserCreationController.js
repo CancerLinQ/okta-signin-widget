@@ -58,10 +58,9 @@ function (Okta, FormController, FormType, ValidationUtil, FooterSignout, TextBox
             token: gup('recoveryToken', window.location.search)
           })
           .then( function(transaction) {
+            console.log(JSON.stringify(transaction));
             // Need to display errors if they are passed in.
-            if (!('errorCode' in transaction)) {
-              self.options.appState.trigger('navigate', '');
-            }
+            self.options.appState.trigger('navigate', 'signin/created-user');
           })
           .fail(function() {
             console.log("submit form failed");
