@@ -193,6 +193,7 @@ function (Okta, Util, Util2, OAuth2Util, Enums, BrowserFeatures, Errors, ErrorCo
       return;
     case 'LOCKED_OUT':
       if (router.settings.get('features.selfServiceUnlock')) {
+        router.appState.set('flashError', Okta.loc('error.auth.lockedOut.selfUnlock'));
         router.navigate('signin/unlock', { trigger: true });
       } else {
         router.controller.model.trigger('error', router.controller.model, {

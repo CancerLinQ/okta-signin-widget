@@ -133,6 +133,8 @@ function (Okta, FormController, FormType, ValidationUtil, Util, FooterSignout, T
               icon: 'credentials-16'
             }
           }),
+
+          // UPDATE: This has been fixed; leaving note as precautionary reference
           // CLQ change to styling in sass/widgets/_chosen.scss
           // Needed in order to properly align dropdown with rest of widget. 
           // For unknown reason, the dropdown's absolute positioning is shifted
