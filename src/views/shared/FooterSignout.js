@@ -25,13 +25,18 @@ define(['okta', 'util/Enums'], function (Okta, Enums) {
       'click a' : function (e) {
         e.preventDefault();
         var self = this;
-        this.model.doTransaction(function(transaction) {
-          return transaction.cancel();
-        })
-        .then(function() {
-          self.state.set('navigateDir', Enums.DIRECTION_BACK);
+        if (typeof transaction !== 'undefined') {
+          this.model.doTransaction(function(transaction) {
+            return transaction.cancel();
+          })
+          .then(function() {
+            self.state.set('navigateDir', Enums.DIRECTION_BACK);
+            self.options.appState.trigger('navigate', '');
+          });
+        } else {
           self.options.appState.trigger('navigate', '');
-        });
+        }
+        
       }
     },
     getTemplateData: function () {

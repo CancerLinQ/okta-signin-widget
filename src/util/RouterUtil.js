@@ -14,13 +14,14 @@
 define([
   'okta',
   'shared/util/Util',
+  'util/Util',
   './OAuth2Util',
   './Enums',
   './BrowserFeatures',
   './Errors',
   './ErrorCodes'
 ],
-function (Okta, Util, OAuth2Util, Enums, BrowserFeatures, Errors, ErrorCodes) {
+function (Okta, Util, Util2, OAuth2Util, Enums, BrowserFeatures, Errors, ErrorCodes) {
 
   var fn = {};
 
@@ -82,11 +83,22 @@ function (Okta, Util, OAuth2Util, Enums, BrowserFeatures, Errors, ErrorCodes) {
     // Token has expired - no longer valid. Navigate back to primary auth.
     if (err && err.errorCode === ErrorCodes.INVALID_TOKEN_EXCEPTION) {
 
-      // CLQ: Use custom error message (identified by presence of CLQ:)
-      // This is implemented to prevent inadvertently passing the errorMessage when it shouldn't be used
-      var msg = err.errorSummary.indexOf('CLQ:') !== -1 ? 
-                err.errorSummary.substring(4).trim() : 
-                Okta.loc('error.expired.session');
+      // CLQ: Use custom error message
+      // This is implemented by checking the url param status and falling through
+      // to the default error message
+      var action = Util2.gup('action', window.location.search);
+      var msg;
+      switch (action) {
+        case 'unlockAccountRecovery':
+          msg = Okta.loc('error.expired.accountUnlockToken');
+          break;
+        case 'passwordResetRecovery':
+          msg = Okta.loc('error.expired.passwordResetToken');
+          break;
+        default:
+          msg = Okta.loc('error.expired.session');
+          break;
+      }
       router.appState.set('flashError', msg);
       router.controller.state.set('navigateDir', Enums.DIRECTION_BACK);
       router.navigate('', { trigger: true });

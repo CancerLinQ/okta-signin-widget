@@ -21,7 +21,7 @@ function (Okta, Enums, FormController, FormType) {
   var _ = Okta._;
 
   return FormController.extend({
-    className: 'password-reset-email-sent',
+    className: 'user-creation-successful',
     Model: function () {
       return {
         local: {
@@ -31,13 +31,12 @@ function (Okta, Enums, FormController, FormType) {
     },
 
     Form: {
-      title: _.partial(Okta.loc, 'usercreation.title', 'login'),
+      title: _.partial(Okta.loc, 'usercreationsuccess.title', 'login'),
       subtitle: function () {
-        var username = this.options.appState.get('username');
-        return Okta.loc('password.forgot.emailSent.desc', 'login', [username]);
+        return Okta.loc('usercreationsuccess.subtitle', 'login');
       },
       noButtonBar: true,
-      attributes: { 'data-se': 'pwd-reset-email-sent' },
+      attributes: { 'data-se': 'user-creation-successful' },
       formChildren: function () {
         return [
           FormType.Button({
@@ -46,23 +45,11 @@ function (Okta, Enums, FormController, FormType) {
             attributes: {'data-se': 'back-button'},
             click: function () {
               var self = this;
-              return this.model.doTransaction(function (transaction) {
-                return transaction.cancel();
-              })
-              .then(function() {
-                self.state.set('navigateDir', Enums.DIRECTION_BACK);
-                self.options.appState.trigger('navigate', '');
-              });
+              self.options.appState.trigger('navigate', '');
             }
           })
         ];
       }
-    },
-
-    initialize: function (options) {
-      this.settings.callGlobalSuccess(Enums.FORGOT_PASSWORD_EMAIL_SENT, {
-        username: options.appState.get('username')
-      });
     }
 
   });

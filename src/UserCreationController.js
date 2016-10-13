@@ -15,10 +15,11 @@ define([
   'util/FormController',
   'util/FormType',
   'util/ValidationUtil',
-  'views/enroll-factors/BackToSigninFooter',
+  'util/Util',
+  'views/shared/FooterSignout',
   'views/shared/TextBox'
 ],
-function (Okta, FormController, FormType, ValidationUtil, BackToSigninFooter, TextBox) {
+function (Okta, FormController, FormType, ValidationUtil, Util, FooterSignout, TextBox) {
 
   var _ = Okta._;
 
@@ -38,32 +39,39 @@ function (Okta, FormController, FormType, ValidationUtil, BackToSigninFooter, Te
         return ValidationUtil.validatePasswordMatch(this);
       },
       save: function () {
-        var self = this;
-
-        // http://stackoverflow.com/questions/979975/how-to-get-the-value-from-the-get-parameters
-        var gup = function( name, url ) {
-          if (!url) url = location.href;
-          name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
-          var regexS = "[\\?&]"+name+"=([^&#]*)";
-          var regex = new RegExp( regexS );
-          var results = regex.exec( url );
-          return results == null ? null : results[1];
-        }
+        var self = this;        
 
         return this.startTransaction (function(authClient) {
           return authClient.signUp({
             password: self.get('newPassword'),
             question: self.get('question'),
             answer: self.get('answer'),
-            token: gup('recoveryToken', window.location.search)
+            token: Util.gup('recoveryToken', window.location.search)
           })
           .then( function(transaction) {
-            console.log(JSON.stringify(transaction));
             // Need to display errors if they are passed in.
             self.options.appState.trigger('navigate', 'signin/created-user');
           })
-          .fail(function() {
-            console.log("submit form failed");
+          .fail(function(e) {
+            var msg, location;
+            switch (e.errorCode) {
+              case 'E0000011': // Invalid token 
+                msg = Okta.loc('error.expired.createUserToken');
+                location = '';
+                break;
+              case 'E0000001': // API validation
+                if (e.errorSummary === 'Api validation failed: password') {
+                  msg = Okta.loc('error.password.complexity');
+                  loc = 'signin/create-user';
+                  break;
+                }
+              default:
+                msg = Okta.loc('usercreation.failure');
+                location = '';
+                break;
+            }
+            self.options.appState.set('flashError', msg);
+            self.options.appState.trigger('navigate', location);
           })
         });
       }
@@ -162,20 +170,18 @@ function (Okta, FormController, FormType, ValidationUtil, BackToSigninFooter, Te
         ];
       }
     },
-    Footer: BackToSigninFooter,
 
     initialize: function () {
+      var self = this;
       this.listenTo(this.form, 'save', function () {
-        // var processCreds = this.settings.get('processCreds');
-        // if (_.isFunction(processCreds)) {
-        //   processCreds({
-        //     username: this.options.appState.get('userEmail'),
-        //     password: this.model.get('newPassword')
-            
-        //   });
-        // }
         this.model.save();
       });
+
+      this.add(new FooterSignout(_.extend(this.toJSON(), 
+        {
+          linkText: Okta.loc('goback', 'login'), 
+          linkClassName: ''
+        })));
     },
 
     fetchInitialData: function() {
