@@ -166,23 +166,24 @@ function (Okta, Backbone, BrowserFeatures, xdomain, RefreshAuthStateController, 
         return;
       }
 
+      // CLQ custom case to jump into user creation flow
+      recoveryToken = (recoveryToken === undefined  &&
+                      'recoveryToken' in argsDict &&
+                      'action' in argsDict &&
+                      argsDict.action === 'createUser') ?
+                      argsDict.recoveryToken :
+                      undefined;
+      if (recoveryToken) {
+        this.settings.unset('recoveryToken');
+        this.navigate(RouterUtil.createAccountCreationRecoveryUrl(recoveryToken), { trigger: true });
+        return;
+      }
+
       // Refresh flow with a stateToken passed through widget settings
       var stateToken = this.settings.get('stateToken');
       if (stateToken) {
         this.settings.unset('stateToken');
         this.navigate(RouterUtil.createRefreshUrl(stateToken), { trigger: true });
-        return;
-      }
-
-      // CLQ custom case to jump into user creation flow
-      var action = ('action' in argsDict && argsDict.action === 'createUser') ? 
-                    'createUser' : undefined;
-      recoveryToken = (recoveryToken === undefined &&
-                        'recoveryToken' in argsDict) ?
-                      argsDict.recoveryToken : undefined;
-      if (action === 'createUser' && recoveryToken) {
-        cb = this.userCreation;
-        cb.apply(this, [null]);
         return;
       }
 

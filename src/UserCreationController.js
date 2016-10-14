@@ -77,7 +77,7 @@ function (Okta, FormController, FormType, ValidationUtil, Util, FooterSignout, T
       }
     },
     Form: {
-      autosave: true,
+      save: _.partial(Okta.loc, 'password.reset', 'login'),
       title: _.partial(Okta.loc, 'usercreation.title', 'login'),
       subtitle: function () {
         var policy = this.options.appState.get('policy');
@@ -95,11 +95,11 @@ function (Okta, FormController, FormType, ValidationUtil, Util, FooterSignout, T
         };
 
         var requirements = _.map(policy.complexity, function (complexityValue, complexityType) {
-        var params = fields[complexityType];
+          var params = fields[complexityType];
 
-        return params.args ?
-          Okta.loc(params.i18n, 'login', [complexityValue]) : Okta.loc(params.i18n, 'login');
-        });s
+          return params.args ?
+            Okta.loc(params.i18n, 'login', [complexityValue]) : Okta.loc(params.i18n, 'login');
+        });
 
         if (requirements.length) {
           requirements = _.reduce(requirements, function (result, requirement) {
@@ -207,7 +207,7 @@ function (Okta, FormController, FormType, ValidationUtil, Util, FooterSignout, T
         };
         factor.questions = function() {
           return http.get(self.settings.getAuthClient(), 
-            self.settings.attributes.oktaUrl + '/api/v1/users/00u829stnwnkWBj340h7/factors/questions')
+            self.settings.attributes.baseUrl + '/api/v1/users/00u829stnwnkWBj340h7/factors/questions')
         }
         return factor.questions();
       })

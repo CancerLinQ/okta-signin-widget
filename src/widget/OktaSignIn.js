@@ -168,7 +168,7 @@ var OktaSignIn = (function () {
 
     authClient = new OktaAuth({
       url: options.baseUrl,
-      oktaUrl: options.oktaUrl,
+      clqUrl: options.clqUrl,
       transformErrorXHR: Util.transformErrorXHR,
       headers: {
         'X-Okta-User-Agent-Extended': 'okta-signin-widget-' + config.version
@@ -177,6 +177,7 @@ var OktaSignIn = (function () {
       redirectUri: options.redirectUri,
       ajaxRequest: ajaxRequest
     });
+    authClient.options.clqUrl = options.clqUrl;
     _.extend(this, LoginRouter.prototype.Events, getProperties(authClient, LoginRouter, Util, options));
 
     // Triggers the event up the chain so it is available to the consumers of the widget.

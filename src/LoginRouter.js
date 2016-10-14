@@ -47,6 +47,7 @@ define([
   'UnlockEmailSentController',
   'UserCreationController',
   'UserCreationSuccessController',
+  'UserCreationRecoveryLoadingController',
   'RefreshAuthStateController',
   'views/shared/SecurityBeacon',
   'views/shared/FactorBeacon'
@@ -86,6 +87,7 @@ function (BaseLoginRouter,
           UnlockEmailSentController,
           UserCreationController,
           UserCreationSuccessController,
+          UserCreationRecoveryLoadingController,
           RefreshAuthStateController,
           SecurityBeacon,
           FactorBeacon) {
@@ -122,6 +124,7 @@ function (BaseLoginRouter,
       'signin/forgot-password': 'forgotPassword',
       'signin/create-user': 'userCreation',
       'signin/created-user': 'userCreated',
+      'signin/create-user/:token': 'userCreationRecoveryLoading',
       'signin/recovery-challenge': 'recoveryChallenge',
       'signin/recovery-emailed': 'recoveryEmailSent',
       'signin/recovery-question': 'recoveryQuestion',
@@ -139,7 +142,7 @@ function (BaseLoginRouter,
     // Route handlers that do not require a stateToken. If the page is refreshed,
     // these functions will not require a status call to refresh the stateToken.
     stateLessRouteHandlers: [
-      'primaryAuth', 'forgotPassword','recoveryLoading', 'unlockAccount', 'refreshAuthState', 'userCreated'
+      'primaryAuth', 'forgotPassword','recoveryLoading', 'unlockAccount', 'refreshAuthState', 'userCreationRecoveryLoading'
     ],
 
     primaryAuth: function () {
@@ -335,11 +338,18 @@ function (BaseLoginRouter,
     },
 
     userCreation: function () {
-      this.render(UserCreationController);
+      this.render(UserCreationController, { Beacon: SecurityBeacon });
     },
 
     userCreated: function () {
       this.render(UserCreationSuccessController, { Beacon: SecurityBeacon });
+    },
+
+    userCreationRecoveryLoading: function(token) {
+      this.render(UserCreationRecoveryLoadingController, {
+        token: token,
+        Beacon: SecurityBeacon
+      });
     },
 
     recoveryChallenge: function () {

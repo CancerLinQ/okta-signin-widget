@@ -43,7 +43,7 @@ function (Okta, Errors, BrowserFeatures, Util, Logger, config) {
 
     local: {
       'baseUrl': ['string', true],
-      'oktaUrl': ['string', true],
+      'clqUrl': ['string', true],
       'recoveryToken': ['string', false, undefined],
       'stateToken': ['string', false, undefined],
       'username' : ['string', false],

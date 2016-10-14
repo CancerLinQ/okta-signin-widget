@@ -19,13 +19,9 @@
   border-style: solid;
   border-width: 1px;
   height: auto;
-  margin: 0px auto 0px;
+  margin: 125px auto 0px;
   width: $container-width;
   min-width: $container-min-width;
-  position: absolute; // CLQ Edit
-  top: 50%; // CLQ Edit
-  left: 50%; // CLQ Edit
-  transform: translate(-50%, -50%); // CLQ Edit
   @include box-sizing(border-box);
 
   @include device-mq(x-small) {

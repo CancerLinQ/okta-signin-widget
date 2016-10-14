@@ -33,9 +33,10 @@ function (Okta, Util, Util2, OAuth2Util, Enums, BrowserFeatures, Errors, ErrorCo
   var recoveryUrlTpl = Okta.tpl('signin/recovery/{{recoveryToken}}');
   var refreshUrlTpl = Okta.tpl('signin/refresh-auth-state{{#if token}}/{{token}}{{/if}}');
   var sessionCookieRedirectTpl = Okta.tpl(
-    '{{oktaUrl}}/login/sessionCookieRedirect?checkAccountSetupComplete=true' +
+    '{{baseUrl}}/login/sessionCookieRedirect?checkAccountSetupComplete=true' +
     '&token={{{token}}}&redirectUrl={{{redirectUrl}}}'
   );
+  var accountCreationRecoveryUrlTpl = Okta.tpl('signin/create-user/{{recoveryToken}}'); // CLQ custom
 
   fn.createVerifyUrl = function (provider, factorType) {
     return verifyUrlTpl({
@@ -70,6 +71,12 @@ function (Okta, Util, Util2, OAuth2Util, Enums, BrowserFeatures, Errors, ErrorCo
     return refreshUrlTpl({ token: token });
   };
 
+  fn.createAccountCreationRecoveryUrl = function (recoveryToken) {
+    return accountCreationRecoveryUrlTpl({
+      recoveryToken: encodeURIComponent(recoveryToken)
+    });
+  };
+
   fn.routeAfterAuthStatusChange = function (router, err, res) {
 
     // Global error handling for CORS enabled errors
@@ -94,6 +101,9 @@ function (Okta, Util, Util2, OAuth2Util, Enums, BrowserFeatures, Errors, ErrorCo
           break;
         case 'passwordResetRecovery':
           msg = Okta.loc('error.expired.passwordResetToken');
+          break;
+        case 'createUser':
+          msg = Okta.loc('error.expired.createUserToken');
           break;
         default:
           msg = Okta.loc('error.expired.session');
@@ -136,7 +146,7 @@ function (Okta, Util, Util2, OAuth2Util, Enums, BrowserFeatures, Errors, ErrorCo
           token: res.sessionToken,
           setCookieAndRedirect: function (redirectUrl) {
             Util.redirect(sessionCookieRedirectTpl({
-              oktaUrl: router.settings.get('oktaUrl'),
+              baseUrl: router.settings.get('baseUrl'),
               token: encodeURIComponent(res.sessionToken),
               redirectUrl: encodeURIComponent(redirectUrl)
             }));
@@ -191,6 +201,10 @@ function (Okta, Util, Util2, OAuth2Util, Enums, BrowserFeatures, Errors, ErrorCo
     case 'PASSWORD_RESET':
       router.navigate('signin/password-reset', { trigger: true });
       return;
+    // CLQ custom case
+    case 'USER_CREATION':
+      router.navigate('signin/create-user', { trigger: true });
+      break;
     case 'LOCKED_OUT':
       if (router.settings.get('features.selfServiceUnlock')) {
         router.appState.set('flashError', Okta.loc('error.auth.lockedOut.selfUnlock'));
