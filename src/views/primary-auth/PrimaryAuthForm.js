@@ -18,6 +18,7 @@ define([
   var _ = Okta._;
 
   return Okta.Form.extend({
+    
     className: 'primary-auth-form',
     noCancelButton: true,
     save: _.partial(Okta.loc, 'primaryauth.submit', 'login'),

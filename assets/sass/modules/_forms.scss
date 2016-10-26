@@ -156,7 +156,8 @@
     }
 
     .input-tooltip,
-    .input-icon {
+    .input-icon,
+    .input-capslock {
       width: 16px;
       height: 16px;
       position: absolute;
@@ -164,10 +165,10 @@
       margin-top: -11px;
 
       + input {
-        padding-right: 30px;
+        padding-right: 50px;
         // IE8 and IE9 has an extra input used for a placeholder
         + input {
-          padding-right: 30px;
+          padding-right: 50px;
         }
       }
     }
@@ -188,6 +189,14 @@
     .input-tooltip {
       right: 10px;
       opacity: 0.5;
+    }
+
+    .input-capslock {
+      right: 28px;
+      opacity: 0.4;
+      visibility: hidden;
+      top: 23px;
+      font-size: 14px;
     }
 
     .password-toggle {

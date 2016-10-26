@@ -178,6 +178,12 @@ function (Okta, FormController, FormType, ValidationUtil, Util, FooterSignout, T
       this.listenTo(this.form, 'save', function () {
         this.model.save();
       });
+      this.listenTo(this.model, 'change:newPassword', function() {
+        var pass = ValidationUtil.validatePasswordComplexity(this.model.get("newPassword"));
+        if (pass !== true) {
+          this.model.trigger('form:field-error', 'newPassword', [Okta.loc('error.password.complexity')]);
+        }
+      });
 
       this.add(new FooterSignout(_.extend(this.toJSON(), 
         {

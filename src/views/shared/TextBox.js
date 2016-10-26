@@ -15,13 +15,16 @@
 //and want to avoid the cirucular dependency that occurs if we
 //include Okta
 define([
+  'okta',
   'jquery',
   'vendor/lib/handlebars-wrapper',
   'util/BrowserFeatures',
+  'util/ValidationUtil',
   'shared/views/forms/inputs/TextBox',
   'qtip'
 ],
-function ($, Handlebars, BrowserFeatures, TextBox) {
+function (okta, $, Handlebars, BrowserFeatures, ValidationUtil, TextBox) {
+  var _ = okta._;
 
   function hasTitleAndText(options) {
     var title = options.title,
@@ -41,7 +44,18 @@ function ($, Handlebars, BrowserFeatures, TextBox) {
     return {text: options.text || options};
   }
 
+  TextBox.prototype.events = _.extend({}, TextBox.prototype.events, {
+      'keydown input[type=password]': function(e) {
+        var caps = event.getModifierState && event.getModifierState('CapsLock');
+        $(e.target.parentNode).children('.input-capslock')[0].style.visibility = caps ? 'visible' : 'hidden';
+      },
+      'focusout input[type=password]': function(e) {
+        $(e.target.parentNode).children('.input-capslock')[0].style.visibility = 'hidden';
+      }
+    });
+
   return TextBox.extend({
+
 
     template: Handlebars.compile('\
       {{#if params}}\
@@ -54,6 +68,7 @@ function ($, Handlebars, BrowserFeatures, TextBox) {
       {{/if}}\
       <input type="{{type}}" placeholder="{{placeholder}}" name="{{name}}" \
         id="{{inputId}}" value="{{value}}" autocomplete="off"/>\
+      <span class="icon input-capslock fa fa-caret-square-o-up"></span>\
     '),
 
     postRender: function () {

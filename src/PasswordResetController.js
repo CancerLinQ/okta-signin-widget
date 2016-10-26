@@ -114,8 +114,14 @@ function (Okta, FormController, FormType, ValidationUtil, FooterSignout, TextBox
           });
         }
         this.model.save();
+      }); 
+      this.listenTo(this.model, 'change:newPassword', function() {
+        var pass = ValidationUtil.validatePasswordComplexity(this.model.get("newPassword"));
+        if (pass !== true) {
+          this.model.trigger('form:field-error', 'newPassword', [Okta.loc('error.password.complexity')]);
+        }
       });
-    }
+   }
 
   });
 

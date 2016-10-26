@@ -33,6 +33,23 @@ define(['okta'], function (Okta) {
     }
   };
 
+  fn.validatePasswordComplexity = function(input) {
+    var length = input.length >= 8;
+    var hasUpperCase = /[A-Z]/.test(input);
+    var hasLowerCase = /[a-z]/.test(input);
+    var hasNumbers = /\d/.test(input);
+    var hasNonalphas = /\W/.test(input);
+    if ((length + hasUpperCase + hasLowerCase + hasNumbers + hasNonalphas) != 5) {
+      return {
+        newPassword: Okta.loc('error.password.complexity', 'login')
+      };
+    }
+    else {
+      return true;
+    }
+
+  }
+
   return fn;
 
 });
