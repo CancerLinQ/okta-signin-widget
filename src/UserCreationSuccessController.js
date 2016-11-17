@@ -40,7 +40,7 @@ function (Okta, Enums, FormController, FormType) {
       formChildren: function () {
         return [
           FormType.Button({
-            title: Okta.loc('goback', 'login'),
+            title: Okta.loc('goback.login', 'login'),
             className: 'button button-primary button-wide',
             attributes: {'data-se': 'back-button'},
             click: function () {

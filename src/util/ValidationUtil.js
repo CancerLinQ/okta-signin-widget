@@ -44,11 +44,15 @@ define(['okta'], function (Okta) {
         newPassword: Okta.loc('error.password.complexity', 'login')
       };
     }
-    else {
-      return true;
-    }
+  };
 
-  }
+  fn.validateAnswerLength = function(input) {
+    if (input.length < 4) {
+      return {
+        answer: Okta.loc('error.security.answer.length')
+      };
+    } 
+  };
 
   return fn;
 

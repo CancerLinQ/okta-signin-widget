@@ -36,7 +36,14 @@ function (Okta, FormController, FormType, ValidationUtil, Util, FooterSignout, T
         securityQuestions: 'object'
       },
       validate: function () {
-        return ValidationUtil.validatePasswordMatch(this);
+        var rv = {};
+        var passwordComplexEnough = ValidationUtil.validatePasswordComplexity(this.get("newPassword"));
+        if (passwordComplexEnough) {_.extend(rv, passwordComplexEnough);}
+        var answerLongEnough = ValidationUtil.validateAnswerLength(this.get("answer"));
+        if (answerLongEnough) {_.extend(rv, answerLongEnough);}
+        var passwordMatch = ValidationUtil.validatePasswordMatch(this);
+        if (passwordMatch) {_.extend(rv, passwordMatch);}
+        return rv;
       },
       save: function () {
         var self = this;        
@@ -77,7 +84,7 @@ function (Okta, FormController, FormType, ValidationUtil, Util, FooterSignout, T
       }
     },
     Form: {
-      save: _.partial(Okta.loc, 'password.reset', 'login'),
+      save: _.partial(Okta.loc, 'usercreation.signup', 'login'),
       title: _.partial(Okta.loc, 'usercreation.title', 'login'),
       subtitle: function () {
         var policy = this.options.appState.get('policy');
@@ -180,8 +187,15 @@ function (Okta, FormController, FormType, ValidationUtil, Util, FooterSignout, T
       });
       this.listenTo(this.model, 'change:newPassword', function() {
         var pass = ValidationUtil.validatePasswordComplexity(this.model.get("newPassword"));
-        if (pass !== true) {
+        if (pass) {
           this.model.trigger('form:field-error', 'newPassword', [Okta.loc('error.password.complexity')]);
+        }
+      });
+
+      this.listenTo(this.model, 'change:answer', function() {
+        var answer = this.model.get("answer");
+        if (answer.length < 4) {
+          this.model.trigger('form:field-error', 'answer', [Okta.loc('error.security.answer.length')]);
         }
       });
 
