@@ -39,7 +39,7 @@ define(['okta'], function (Okta) {
     var hasLowerCase = /[a-z]/.test(input);
     var hasNumbers = /\d/.test(input);
     var hasNonalphas = /\W/.test(input);
-    if ((length + hasUpperCase + hasLowerCase + hasNumbers + hasNonalphas) != 5) {
+    if ((/^(?=.*[A-Z])(?=.*\W)(?=.*\d)(?=.*[a-z]).{8,}$/.test(input)) !== true) {
       return {
         newPassword: Okta.loc('error.password.complexity', 'login')
       };

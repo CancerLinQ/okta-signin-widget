@@ -47,9 +47,9 @@ function (Okta, PrimaryAuthForm, SocialAuth, PrimaryAuthModel, Util, BaseLoginCo
           <a href="{{href}}" class="link js-custom">{{text}}</a></li>\
         {{/each}}\
         <li>\
-        <a href="{{helpLinkUrl}}" data-se="help-link" class="link js-help-link" target="_blank">\
-        {{i18n code="help" bundle="login"}}\
-        </a>\
+        <span href="{{helpLinkUrl}}" data-se="help-link" class="link js-help-link" target="_blank">\
+        {{i18n code="signin.help" bundle="login"}}\
+        </span>\
         </li>\
       </ul>\
     ',
@@ -73,6 +73,10 @@ function (Okta, PrimaryAuthForm, SocialAuth, PrimaryAuthModel, Util, BaseLoginCo
     },
     postRender: function () {
       this.$('.js-help-links').hide();
+      // Disable if login is disabled
+      if (this.options.settings.authClient.options.disableLogin) {
+        this.$(':link').toggleClass('o-form-disabled', true);
+      }
     },
     toggleLinks: function (e) {
       e.preventDefault();
@@ -180,8 +184,19 @@ function (Okta, PrimaryAuthForm, SocialAuth, PrimaryAuthModel, Util, BaseLoginCo
       this.listenTo(this.model, 'error', function () {
         this.state.set('enabled', true);
       });
-    }
 
+    },
+
+    postRender: function () {
+      if (this.options.settings.authClient.options.disableLogin) {
+        this.$('.o-form-fieldset-container').toggleClass('o-form-disabled', true);
+        this.$('.button-primary').toggleClass('o-form-disabled', true);
+        var inputs = this.$('input');
+        for (var i = 0; i < inputs.length; i ++) {
+          inputs[i].disabled = true;
+        }
+      }
+    },
   });
 
 });

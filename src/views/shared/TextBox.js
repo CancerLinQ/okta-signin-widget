@@ -46,7 +46,7 @@ function (okta, $, Handlebars, BrowserFeatures, ValidationUtil, TextBox) {
 
   TextBox.prototype.events = _.extend({}, TextBox.prototype.events, {
       'keydown input[type=password]': function(e) {
-        var caps = event.getModifierState && event.getModifierState('CapsLock');
+        var caps = e.originalEvent.getModifierState ? e.originalEvent.getModifierState('CapsLock') : false;
         $(e.target.parentNode).children('.input-capslock')[0].style.visibility = caps ? 'visible' : 'hidden';
       },
       'focusout input[type=password]': function(e) {

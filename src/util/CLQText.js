@@ -13,6 +13,7 @@ var CLQText = (function() {
     'usercreationsuccess.title': 'Your account was successfully created',
     'usercreationsuccess.subtitle': 'Please click the button below to log in to CancerLinQ',
     'goback.login': 'Back to Log In',
+    'signin.help': 'Contact your practice admin for additional help.',
 
     // Over-write existing widget text
     "account.unlock.sendEmail": "Request via Email",
@@ -24,9 +25,10 @@ var CLQText = (function() {
     'password.forgot.emailSent.desc' : 'An email has been sent to {0} with instructions on how to reset your password.',
     "password.forgot.email.or.username.placeholder": "Email",
     "password.forgot.email.or.username.tooltip": "Email",
-    'password.expired.title' : 'Your CancerLinQ password has expired',
+    'password.expired.title' : 'Please change your CancerLinQ password',
     'password.expiring.subtitle' : 'When password expires you may be locked out of Okta Mobile, mobile email, and other services.',
-    'password.forgot.question.title' : 'Please answer your security question'
+    'password.forgot.question.title' : 'Please answer your security question',
+    'password.oldPassword.placeholder': 'Current password'
   }
 })();
 

@@ -116,8 +116,23 @@ define([
     focus: function () {
       if (!this.model.get('username')) {
         this.getInputs().first().focus();
+        
+        // Disable password field if no fields are filled
+        // $(this.$('input')[1]).toggleClass('o-form-disabled', true)
+        // this.$('input')[1].disabled = true; 
       } else {
+        this.model.checkUsername();
         this.getInputs().toArray()[1].focus();
+      }
+    },
+
+    events: {
+      'focusout input[name=username]': function() {
+        this.model.checkUsername();
+
+        // Enable password field afterwards
+        // $(this.$('input')[1]).toggleClass('o-form-disabled', false)
+        // this.$('input')[1].disabled = false; 
       }
     }
 

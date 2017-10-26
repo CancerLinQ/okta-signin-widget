@@ -29,6 +29,10 @@ var CLQAuth = (function() {
     return tx.postToTransaction(this, this.options.clqUrl + '/asco/dev/commons/security/login/xs/api/signUp', opts);
   };
 
+  OktaAuth.prototype.checkUsername = function(opts) {
+    return tx.postToTransaction(this, this.options.clqUrl + '/asco/dev/commons/security/login/xs/api/checkUsername', opts);
+  };
+
 
   return OktaAuth;
 

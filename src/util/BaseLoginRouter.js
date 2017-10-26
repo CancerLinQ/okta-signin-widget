@@ -35,6 +35,33 @@ function (Okta, Backbone, BrowserFeatures, xdomain, RefreshAuthStateController, 
   var _ = Okta._,
       $ = Okta.$;
 
+  // CLQ: Helper method to check session cookie for timed out notification
+  function getCookie(name) {
+    var dc = document.cookie;
+    var prefix = name + "=";
+    var begin = dc.indexOf("; " + prefix);
+    if (begin == -1) {
+      begin = dc.indexOf(prefix);
+      if (begin != 0) return null;
+    } else {
+      begin += 2;
+      var end = document.cookie.indexOf(";", begin);
+      if (end == -1) {
+        end = dc.length;
+      }
+    }
+    // because unescape has been deprecated, replaced with decodeURI
+    //return unescape(dc.substring(begin + prefix.length, end));
+    return decodeURI(dc.substring(begin + prefix.length, end));
+  }
+
+  // CLQ: Helper method to delete session cookie for timed out notification
+  function deleteCookie(name) {
+    document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT; path=/; domain=' +
+      window.location.host.split(".").slice(-2).join('.');
+  }
+
+
   function isStateLessRouteHandler(router, fn) {
     return _.find(router.stateLessRouteHandlers, function (routeName) {
       return fn === router[routeName];
@@ -266,6 +293,41 @@ function (Okta, Backbone, BrowserFeatures, xdomain, RefreshAuthStateController, 
         this.header.setBeacon(Beacon, controllerOptions);
 
         this.controller.render();
+
+        // CLQ: Custom case to notify for unsupported browsers (<IE10)
+        if (navigator.userAgent.indexOf("MSIE") >= 0) {
+          var model = this.controller.model;
+          model.trigger("error", model, {
+            responseJSON: {
+              errorSummary: 'We detected that you are using an unsupported browser. We currently support the latest versions of Chrome, Firefox, Safari and Internet Explorer 11.'
+            }
+          });
+        }
+
+        // CLQ: Special case to display notifications on login widget
+        if (this.controller.options.settings.authClient.options.notification &&
+            this.controller.$el.context.classList[0] === "primary-auth") {
+          var model = this.controller.model;
+          model.trigger("error", model, {
+            responseJSON: {
+              errorSummary: this.controller.options.settings.authClient.options.notification
+            }
+          });
+        }
+        
+        // CLQ: Special case to check for timeout on initial load screen
+        if (this.controller.$el.context.classList[0] === "primary-auth") {
+          var cookie = getCookie('oktaSessionTimedOut');
+          if (cookie === "true") {
+            var model = this.controller.model;
+            model.trigger('error', model, {
+              responseJSON: {
+                errorSummary: 'You have been logged out.'
+              }
+            });
+            deleteCookie('oktaSessionTimedOut');
+          }
+        }
 
         if (!oldController) {
           this.el.append(this.controller.el);

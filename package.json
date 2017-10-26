@@ -65,15 +65,16 @@
     "webpack": "1.13.1"
   },
   "dependencies": {
+    "@okta/okta-auth-js": "1.4.0",
+    "backbone": "1.2.1",
     "handlebars": "4.0.5",
     "jquery": "1.12.1",
     "jquery.cookie": "1.4.1",
-    "backbone": "1.2.1",
-    "request-promise": "2.0.0",
-    "underscore": "1.8.3",
-    "@okta/okta-auth-js": "1.4.0",
     "q": "1.4.1",
-    "u2f-api-polyfill": "0.4.1"
+    "request-promise": "2.0.0",
+    "u2f-api-polyfill": "0.4.1",
+    "underscore": "1.8.3",
+    "url-search-params": "^0.6.1"
   },
   "optionalDependencies": {
     "@okta/ci-pkginfo": "1.2.0",

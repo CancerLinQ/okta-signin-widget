@@ -60,6 +60,14 @@ function (Okta, FormController, FormType, ValidationUtil, FooterSignout, TextBox
           excludeUsername: {i18n: 'password.complexity.no_username'}
         };
 
+        // CLQ-2323, Okta API added Password Policy object
+        // Custom CLQ code
+        // Object contained the attribute excludeAttributes which caused the _.map function to fail as
+        // the excludeAttributes does not exist in the above fields dictionary. As CLQ does not
+        // use the excludeAttributes policy yet, this attribute is removed so that the rendering
+        // of the controller continues as normal. This is also found in the UserCreationController.
+        if (Object.keys(policy.complexity).indexOf('excludeAttributes') !== -1) delete policy.complexity.excludeAttributes;
+
         var requirements = _.map(policy.complexity, function (complexityValue, complexityType) {
           var params = fields[complexityType];
 
@@ -104,6 +112,32 @@ function (Okta, FormController, FormType, ValidationUtil, FooterSignout, TextBox
     },
     Footer: FooterSignout,
 
+    events: {
+      'focusout input[name=newPassword]': function() {
+        var pass = ValidationUtil.validatePasswordComplexity(this.model.get("newPassword"));
+        if (pass) {
+          this.model.trigger('form:field-error', 'newPassword', [Okta.loc('error.password.complexity')]);
+        }
+        
+      },
+      'focusin input[name=newPassword]': function() {
+        this.model.trigger('form:clear-errors', 'newPassword');
+      },
+      'focusout input[name=confirmPassword]': function() {
+        var rv = ValidationUtil.validatePasswordMatch(this.model);
+        if (rv != undefined) {
+          this.model.trigger('form:field-error', 'confirmPassword', [Okta.loc('password.error.match')]);
+        }
+      },
+      'focusin input[name=confirmPassword]': function() {
+        this.model.trigger('form:clear-errors', 'confirmPassword');
+        var pass = ValidationUtil.validatePasswordComplexity(this.model.get("newPassword"));
+        if (pass) {
+          this.model.trigger('form:field-error', 'newPassword', [Okta.loc('error.password.complexity')]);
+        }
+      }
+    },
+
     initialize: function () {
       this.listenTo(this.form, 'save', function () {
         var processCreds = this.settings.get('processCreds');
@@ -115,12 +149,6 @@ function (Okta, FormController, FormType, ValidationUtil, FooterSignout, TextBox
         }
         this.model.save();
       }); 
-      this.listenTo(this.model, 'change:newPassword', function() {
-        var pass = ValidationUtil.validatePasswordComplexity(this.model.get("newPassword"));
-        if (pass !== true) {
-          this.model.trigger('form:field-error', 'newPassword', [Okta.loc('error.password.complexity')]);
-        }
-      });
    }
 
   });

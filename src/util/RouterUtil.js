@@ -221,6 +221,9 @@ function (Okta, Util, Util2, OAuth2Util, Enums, BrowserFeatures, Errors, ErrorCo
     case 'USER_CREATED':
       router.navigate('signin/created-user', { trigger: true });
       return;
+    // Do nothing in this case, just the return for a non-IDP org
+    case 'SSO_FALSE':
+      return;
     default:
       throw new Error('Unknown status: ' + res.status);
     }

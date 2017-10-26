@@ -99,6 +99,31 @@ function (Okta, BaseLoginModel, CookieUtil, Enums) {
       .fin(_.bind(function () {
         this.appState.trigger('loading', false);
       }, this));
+    },
+
+    // Added function to verify username for IDP integration and possible redirect
+    checkUsername: function() {
+      var username = this.settings.transformUsername(this.get('username'), Enums.PRIMARY_AUTH)
+      if (username &&
+          username !== '' && 
+          username.split('@').length == 2 &&
+          username.split('@')[1].split('.').length >=2) {
+        this.appState.trigger('loading', true);
+        return this.startTransaction(function (authClient) {
+          return authClient.checkUsername({
+            username: username
+          });
+        })
+        .then(function(response) {
+          if ('location' in response) {
+            window.location.href = response.location;
+          }
+        })
+        .fin(_.bind(function() {
+          this.appState.trigger('removeLoading');
+        }, this));
+      }
+      
     }
   });
 

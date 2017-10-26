@@ -8,6 +8,7 @@ var OktaSignIn = (function () {
   var config  = require('json!config/config'),
       _ = require('underscore'),
       $ = require('jquery');
+  var URLSearchParams = require('url-search-params');
 
   function getProperties(authClient, LoginRouter, Util, config) {
 
@@ -166,9 +167,17 @@ var OktaSignIn = (function () {
     Util = require('util/Util');
     LoginRouter = require('LoginRouter');
 
+    // Add in backdoor around disabled login
+    var params = new URLSearchParams(window.location.search.slice(1));
+    if (params.get('forcedEntry') && params.get('forcedEntry')==='true') {
+      options.disableLogin = false;
+    }
+
     authClient = new OktaAuth({
-      url: options.baseUrl,
-      clqUrl: options.clqUrl,
+      url: options.baseUrl, // URL for okta, regular calls
+      clqUrl: options.clqUrl, // URL for calls that are passed through CLQ
+      notification: options.notification, // Either a message to display or false/undefined
+      disableLogin: options.disableLogin, // true/false to disable login
       transformErrorXHR: Util.transformErrorXHR,
       headers: {
         'X-Okta-User-Agent-Extended': 'okta-signin-widget-' + config.version
@@ -177,7 +186,12 @@ var OktaSignIn = (function () {
       redirectUri: options.redirectUri,
       ajaxRequest: ajaxRequest
     });
+
+    // New options must be added separately
     authClient.options.clqUrl = options.clqUrl;
+    authClient.options.notification = options.notification,
+    authClient.options.disableLogin = options.disableLogin,
+    
     _.extend(this, LoginRouter.prototype.Events, getProperties(authClient, LoginRouter, Util, options));
 
     // Triggers the event up the chain so it is available to the consumers of the widget.
